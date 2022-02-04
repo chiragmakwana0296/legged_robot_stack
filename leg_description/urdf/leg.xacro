@@ -1,0 +1,204 @@
+<?xml version="1.0" ?>
+<robot name="leg" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+<xacro:include filename="$(find leg_description)/urdf/materials.xacro" />
+<xacro:include filename="$(find leg_description)/urdf/leg.gazebo" />
+
+<xacro:macro name="leg" params="side num x y z angle joint_effort joint_velocity">
+
+<link name="leg_base_${side}${num}">
+  <inertial>
+    <origin rpy="0 0 0" xyz="-0.004871681061061522 0.00011643429551521872 0.019692846258153093"/>
+    <mass value="8.341020253462162"/>
+    <inertia ixx="0.026667" ixy="-2e-05" ixz="-0.000165" iyy="0.028259" iyz="4e-06" izz="0.051461"/>
+  </inertial>
+  <visual>
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+    <geometry>
+      <mesh filename="package://leg_description/meshes/leg_base_link.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="silver"/>
+  </visual>
+  <collision>
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+    <geometry>
+      <mesh filename="package://leg_description/meshes/leg_base_link.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="femur_base_${side}${num}">
+  <inertial>
+    <origin rpy="0 0 0" xyz="0.10872635808676938 0.008582554861478622 0.01963983681426297"/>
+    <mass value="5.7419415798639255"/>
+    <inertia ixx="0.009647" ixy="0.004677" ixz="-0.003289" iyy="0.03841" iyz="0.000767" izz="0.04268"/>
+  </inertial>
+  <visual>
+    <origin rpy="0 0 0" xyz="-0.0 0.0 -0.05"/>
+    <geometry>
+      <mesh filename="package://leg_description/meshes/femur_base_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="white"/>
+  </visual>
+  <collision>
+    <origin rpy="0 0 0" xyz="-0.0 0.0 -0.05"/>
+    <geometry>
+      <mesh filename="package://leg_description/meshes/femur_base_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="femur_link_${side}${num}">
+  <inertial>
+    <origin rpy="0 0 0" xyz="0.03630026202441122 7.870816556624017e-05 0.10443637465493055"/>
+    <mass value="4.728983887639144"/>
+    <inertia ixx="0.046876" ixy="2.5e-05" ixz="-0.01643" iyy="0.050918" iyz="2.5e-05" izz="0.017083"/>
+  </inertial>
+  <visual>
+    <origin rpy="1.5708 -1.045 0" xyz="0 0 0"/>
+    <geometry>
+      <mesh filename="package://leg_description/meshes/Femur_Assembly.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="silver"/>
+  </visual>
+  <collision>
+    <origin rpy="1.5708 -1.045 0" xyz="0 0 0"/>
+    <geometry>
+      <mesh filename="package://leg_description/meshes/Femur_Assembly.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="tibia_link_${side}${num}">
+  <inertial>
+    <origin rpy="0 0 0" xyz="0.09817993031034078 -3.4785017669889708e-06 -0.11373105818820523"/>
+    <mass value="5.477504097726574"/>
+    <inertia ixx="0.062093" ixy="-0.0" ixz="0.023385" iyy="0.070019" iyz="-0.0" izz="0.018221"/>
+  </inertial>
+  <visual>
+    <origin rpy="1.5708 0 0" xyz="0 0 0"/>
+    <geometry>
+      <mesh filename="package://leg_description/meshes/Tibia_Assembly.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="black"/>
+  </visual>
+  <collision>
+    <origin rpy="1.5708 0 0" xyz="0 0 0"/>
+    <geometry>
+      <mesh filename="package://leg_description/meshes/Tibia_Assembly.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="leg_tip_${side}${num}" />
+
+<joint name="joint_base_link_${side}${num}" type="fixed">
+  <origin xyz="${x} ${y} ${z}" rpy="0 0 ${angle}" />
+  <parent link="base_link"/>
+  <child link="leg_base_${side}${num}"/>
+</joint>
+
+<joint name="joint_base_${side}${num}" type="revolute">
+  <origin rpy="0 0 0" xyz="0.0 0.0 0.05"/>
+  <parent link="leg_base_${side}${num}"/>
+  <child link="femur_base_${side}${num}"/>
+  <axis xyz="0.0 0.0 -1.0"/>
+  <limit lower="-1.5" upper="1.5" effort="${joint_effort}" velocity="${joint_velocity}" />
+</joint>
+
+<joint name="joint_femur_${side}${num}" type="revolute">
+  <origin rpy="0 0 0" xyz="0.155492 -0.000545 0.065003"/>
+  <parent link="femur_base_${side}${num}"/>
+  <child link="femur_link_${side}${num}"/>
+  <axis xyz="0.0 1.0 0.0"/>
+  <limit lower="-0.8" upper="0.9" effort="${joint_effort}" velocity="${joint_velocity}" />
+</joint>
+
+<joint name="joint_tibia_${side}${num}" type="revolute">
+  <origin rpy="0 0 0" xyz="0.100634 -2e-06 0.282178"/>
+  <parent link="femur_link_${side}${num}"/>
+  <child link="tibia_link_${side}${num}"/>
+  <axis xyz="0.0 1.0 0.0"/>
+  <limit lower="-1.5" upper="0.0" effort="${joint_effort}" velocity="${joint_velocity}" />
+</joint>
+  
+<joint name="tibia_foot_joint_${side}${num}" type="fixed">
+  <origin xyz="0.08 0 -0.40" rpy="0 0 0" />
+  <parent link="tibia_link_${side}${num}" />
+  <child link="leg_tip_${side}${num}" />
+</joint>
+
+<!-- leg gazebo properties -->
+<gazebo reference="base_link">
+  <material>Gazebo/Red</material>
+  <mu1>0.2</mu1>
+  <mu2>0.2</mu2>
+  <selfCollide>true</selfCollide>
+  <gravity>true</gravity>
+</gazebo>
+
+<gazebo reference="leg_base_${side}${num}">
+  <material>Gazebo/White</material>
+  <mu1>0.2</mu1>
+  <mu2>0.2</mu2>
+  <selfCollide>true</selfCollide>
+</gazebo>
+
+<gazebo reference="femur_base_${side}${num}">
+  <material>Gazebo/Black</material>
+  <mu1>0.2</mu1>
+  <mu2>0.2</mu2>
+  <selfCollide>true</selfCollide>
+</gazebo>
+
+<gazebo reference="femur_link_${side}${num}">
+  <material>Gazebo/White</material>
+  <mu1>0.2</mu1>
+  <mu2>0.2</mu2>
+  <selfCollide>true</selfCollide>
+</gazebo>
+
+<gazebo reference="tibia_link_${side}${num}">
+  <material>Gazebo/Black</material>
+  <mu1>0.2</mu1>
+  <mu2>0.2</mu2>
+  <selfCollide>true</selfCollide>
+</gazebo>
+
+<!-- Leg transmission properties  -->
+<transmission name="joint_base_${side}${num}_tran">
+  <type>transmission_interface/SimpleTransmission</type>
+  <joint name="joint_base_${side}${num}">
+    <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+  </joint>
+  <actuator name="joint_base_${side}${num}_actr">
+    <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    <mechanicalReduction>1</mechanicalReduction>
+  </actuator>
+</transmission>
+
+<transmission name="joint_femur_${side}${num}_tran">
+  <type>transmission_interface/SimpleTransmission</type>
+  <joint name="joint_femur_${side}${num}">
+    <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+  </joint>
+  <actuator name="joint_femur_${side}${num}_actr">
+    <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    <mechanicalReduction>1</mechanicalReduction>
+  </actuator>
+</transmission>
+
+<transmission name="joint_tibia_${side}${num}_tran">
+  <type>transmission_interface/SimpleTransmission</type>
+  <joint name="joint_tibia_${side}${num}">
+    <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+  </joint>
+  <actuator name="joint_tibia_${side}${num}_actr">
+    <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    <mechanicalReduction>1</mechanicalReduction>
+  </actuator>
+</transmission>
+
+</xacro:macro>
+
+</robot>

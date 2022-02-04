@@ -1,0 +1,40 @@
+<?xml version="1.0" ?>
+<robot name="leg_robot" xmlns:xacro="http://www.ros.org/wiki/xacro">
+<xacro:include filename="$(find leg_description)/urdf/leg.gazebo" />
+<xacro:include filename="$(find leg_description)/urdf/leg.xacro" />
+
+<link name="base_link">
+  <inertial>
+    <origin rpy="0 0 0" xyz="0 0 -0.065"/>
+    <mass value="20"/>
+    <inertia ixx="3.251607" ixy="-0.0" ixz="-0.0" iyy="13.028524" iyz="-0.0" izz="16.272836"/>
+  </inertial>
+  <visual>
+    <origin rpy="0 0 0" xyz="0 0 -0.065"/>
+    <geometry>
+      <mesh filename="package://leg_description/meshes/body_base_link.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </visual>
+  <collision>
+    <origin rpy="0 0 0" xyz="0 0 -0.065"/>
+    <geometry>
+      <mesh filename="package://leg_description/meshes/body_base_link.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+
+
+<xacro:property name="pi" value="3.1415926" />
+
+
+<xacro:leg side="r" num="1" x="0.5" y="-0.19" z="0.022"	angle="-${pi/3}" joint_effort="10000" joint_velocity="100"/>
+<xacro:leg side="r" num="2" x="0.0" y="-0.19" z="0.022"	angle="-${pi/2}" joint_effort="10000" joint_velocity="100"/>
+<xacro:leg side="r" num="3" x="-0.5" y="-0.19" z="0.022" angle="-${pi*2/3}" joint_effort="10000" joint_velocity="100"/>
+
+<xacro:leg side="l" num="1" x="0.5" y="0.19" z="0.022"	angle="${pi/3}" joint_effort="10000" joint_velocity="100"/>
+<xacro:leg side="l" num="2" x="0.0" y="0.19" z="0.022"	angle="${pi/2}" joint_effort="10000" joint_velocity="100"/>
+<xacro:leg side="l" num="3" x="-0.5" y="0.19" z="0.022" angle="${pi*2/3}" joint_effort="10000" joint_velocity="100" />
+
+
+</robot>
