@@ -1,0 +1,3 @@
+hexapod_msgs/LegsIKRequest ik_request
+---
+hexapod_msgs/LegsJointsState joints_state
