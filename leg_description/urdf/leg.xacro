@@ -2,7 +2,7 @@
 <robot name="leg" xmlns:xacro="http://www.ros.org/wiki/xacro">
 
 <xacro:include filename="$(find leg_description)/urdf/materials.xacro" />
-<xacro:include filename="$(find leg_description)/urdf/leg.gazebo" />
+<!-- <xacro:include filename="$(find leg_description)/urdf/leg.gazebo" /> -->
 
 <xacro:macro name="leg" params="side num x y z angle joint_effort joint_velocity">
 
@@ -90,7 +90,29 @@
   </collision>
 </link>
 
-<link name="leg_tip_${side}${num}" />
+<link name="leg_tip_${side}${num}" >
+  <inertial>
+    <origin rpy="0 0 0" xyz="0.09817993031034078 -3.4785017669889708e-06 -0.11373105818820523"/>
+    <mass value="5.477504097726574"/>
+    <inertia ixx="0.062093" ixy="-0.0" ixz="0.023385" iyy="0.070019" iyz="-0.0" izz="0.018221"/>
+  </inertial>
+  <visual>
+    <origin rpy="1.5708 0 0" xyz="0 0 0"/>
+    <geometry>
+        <sphere radius="0.03"/>
+    </geometry>
+    <material name="black"/>
+  </visual>
+  <collision>
+    <origin rpy="1.5708 0 0" xyz="0 0 0"/>
+    <geometry>
+        <sphere radius="0.03"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="tip_inter_${side}${num}" />
+<link name="tip_${side}${num}" />
 
 <joint name="joint_base_link_${side}${num}" type="fixed">
   <origin xyz="${x} ${y} ${z}" rpy="0 0 ${angle}" />
@@ -103,7 +125,7 @@
   <parent link="leg_base_${side}${num}"/>
   <child link="femur_base_${side}${num}"/>
   <axis xyz="0.0 0.0 -1.0"/>
-  <limit lower="-1.5" upper="1.5" effort="${joint_effort}" velocity="${joint_velocity}" />
+  <limit lower="-1.1" upper="1.1" effort="${joint_effort}" velocity="${joint_velocity}" />
 </joint>
 
 <joint name="joint_femur_${side}${num}" type="revolute">
@@ -122,10 +144,28 @@
   <limit lower="-1.5" upper="0.0" effort="${joint_effort}" velocity="${joint_velocity}" />
 </joint>
   
-<joint name="tibia_foot_joint_${side}${num}" type="fixed">
-  <origin xyz="0.08 0 -0.40" rpy="0 0 0" />
+<joint name="tibia_foot_joint_${side}${num}" type="revolute">
+  <origin xyz="0.08 0 -0.40" rpy="0 0 -1.57" />
   <parent link="tibia_link_${side}${num}" />
   <child link="leg_tip_${side}${num}" />
+  <axis xyz="1.0 0.0 0.0"/>
+  <limit lower="-3.14" upper="3.14" effort="${joint_effort}" velocity="${joint_velocity}" />
+</joint>
+
+<joint name="leg_tip_inter_joint_${side}${num}" type="revolute">
+  <origin xyz="0.0 0 -0.0" rpy="0.0 0 0.0" />
+  <parent link="leg_tip_${side}${num}" />
+  <child link="tip_inter_${side}${num}" />
+  <axis xyz="0.0 1.0 0.0"/>
+  <limit lower="-3.14" upper="3.14" effort="${joint_effort}" velocity="${joint_velocity}" />
+</joint>
+
+<joint name="leg_tip_joint_${side}${num}" type="revolute">
+  <origin xyz="0.0 0 -0.0" rpy="0.0 0 0.0" />
+  <parent link="tip_inter_${side}${num}" />
+  <child link="tip_${side}${num}" />
+  <axis xyz="0.0 0.0 1.0"/>
+  <limit lower="-3.14" upper="3.14" effort="${joint_effort}" velocity="${joint_velocity}" />
 </joint>
 
 <!-- leg gazebo properties -->
@@ -162,6 +202,13 @@
   <material>Gazebo/Black</material>
   <mu1>0.2</mu1>
   <mu2>0.2</mu2>
+  <selfCollide>true</selfCollide>
+</gazebo>
+
+<gazebo reference="leg_tip_${side}${num}">
+  <material>Gazebo/Black</material>
+  <mu1>1000</mu1>
+  <mu2>1000</mu2>  
   <selfCollide>true</selfCollide>
 </gazebo>
 
