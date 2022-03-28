@@ -39,9 +39,9 @@ class LegKinematics(object):
             rospy.logerr("Unable to load urdf_description")
             return
         
-        link_suffix = ["r1","r2","r3","l1","l2","l3"]
+        link_suffix = ["_r1","_r2","_r3","l1","l2","l3"]
         base_link = urdf.get_root()
-        end_link_name = "leg_tip_"
+        end_link_name = "leg_tip"
 
         if kdl_tree is None:
             success, kdl_tree = parse.treeFromUrdfModel(urdf)
