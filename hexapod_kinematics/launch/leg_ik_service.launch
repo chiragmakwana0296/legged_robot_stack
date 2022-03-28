@@ -1,0 +1,5 @@
+<launch>
+  <node name="hexapod_leg_kinematics" pkg="hexapod_kinematics" type="leg_ik_service_node" output="screen"/>
+  <node name="hexapod_body_kinematics" pkg="hexapod_body_kinematics" type="hexapod_body_kinematics_node" output="screen"/>
+  <node name="hexapod_joint_publisher_node" pkg="hexapod_kinematics" type="hexapod_joint_publisher_node" output="screen"/>
+</launch>
