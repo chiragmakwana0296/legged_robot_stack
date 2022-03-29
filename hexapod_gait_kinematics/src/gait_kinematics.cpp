@@ -16,10 +16,10 @@ bool GaitKinematics::init() {
 	node.param("tip_name_body", tip_name, std::string("tip"));
 
 	// Get Gait Settings From Parameter Server
-	node.param("trapezoid_low_radius", trap_low_r, 0.03);
-	node.param("trapezoid_high_radius", trap_high_r, 0.023);
-	node.param("trapezoid_h", trap_h, 0.02);
-	node.param("clearance", trap_z, 0.045);
+	node.param("trapezoid_low_radius", trap_low_r, 0.1);
+	node.param("trapezoid_high_radius", trap_high_r, 0.1);
+	node.param("trapezoid_h", trap_h, 0.1);
+	node.param("clearance", trap_z, 0.15);
 	node.param("duration_ripple", d_ripple, 1.5);
 	node.param("duration_tripod", d_tripod, 1.0);
 
@@ -29,10 +29,11 @@ bool GaitKinematics::init() {
 		return false;
 	}
 
-	client = node.serviceClient<hexapod_msgs::GetIKSolver>("/crab_leg_kinematics/get_ik");
+	client = node.serviceClient<hexapod_msgs::GetIKSolver>("/hexapod_leg_kinematics/get_ik");
 	joints_pub = node.advertise<hexapod_msgs::LegsJointsState>("joints_to_controller", 1);
 	gait_control_sub = node.subscribe<hexapod_msgs::GaitCommand>("/teleop/gait_control", 1, &GaitKinematics::teleopGaitCtrl, this);
-
+	leg_target_pose_viz_pub = node.advertise<geometry_msgs::PoseArray>("/gait_target_pose", 1);
+	
 	return true;
 }
 
@@ -88,16 +89,33 @@ bool GaitKinematics::callService (KDL::Vector* vector){
 	srv.request.leg_number.clear();
 	srv.request.target_position.clear();
 	srv.request.current_joints.clear();
-
+	geometry_msgs::PoseArray target_pose_array;
+	geometry_msgs::Pose target_pose;
 	//Creating message to request
 	for (int i=0; i<num_legs; i++){
 		srv.request.leg_number.push_back(i);
 		leg_pos_buf.x = vector[i].x();
 		leg_pos_buf.y = vector[i].y();
 		leg_pos_buf.z = vector[i].z();
+
+		// Visualization
+		target_pose_array.header.frame_id = "base_link";
+		target_pose_array.header.stamp = ros::Time::now();;
+		
+		target_pose.position.x = leg_pos_buf.x;
+		target_pose.position.y = leg_pos_buf.y;
+		target_pose.position.z = leg_pos_buf.z;
+		target_pose.orientation.x = 0;
+		target_pose.orientation.y = 0;
+		target_pose.orientation.z = 0;
+		target_pose.orientation.w = 1;
+
+		target_pose_array.poses.push_back(target_pose);
+
 		srv.request.target_position.push_back(leg_pos_buf);
 		srv.request.current_joints.push_back(legs.joints_state[i]);
 	}
+	leg_target_pose_viz_pub.publish(target_pose_array);
 	//Call service and parsing response
 	if (client.call(srv)){
 		if (srv.response.error_codes==srv.response.IK_FOUND){
@@ -151,7 +169,7 @@ bool GaitKinematics::loadModel(const std::string xml){
 
 	//Vector iterators
 	for (int i=0; i<num_legs; i++){
-		frames[i] = frames[i] * frames[i+num_legs] * KDL::Frame (KDL::Vector (0.11,0,0));  //!!!!!!!!!!!!!!!!!
+		frames[i] = frames[i] * frames[i+num_legs] * KDL::Frame (KDL::Vector (0.5,0,0));  //!!!!!!!!!!!!!!!!!
 	}
 	frames.resize(num_legs);
 

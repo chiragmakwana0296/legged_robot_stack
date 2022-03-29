@@ -15,6 +15,7 @@
 #include <hexapod_msgs/LegsJointsState.h>
 #include <hexapod_msgs/GaitCommand.h>
 #include "hexapod_gait_kinematics/gait.hpp"
+#include <geometry_msgs/PoseArray.h>
 
 #define NUM_LEGS 6
 #define NUM_JOINTS 6
@@ -41,7 +42,8 @@ class GaitKinematics {
 		ros::ServiceClient client;
 		ros::Publisher joints_pub;
 		ros::Subscriber gait_control_sub;
-
+		ros::Publisher leg_target_pose_viz_pub;
+		
 		bool loadModel(const std::string xml);
 		bool callService (KDL::Vector* vector);
 		void teleopGaitCtrl (const hexapod_msgs::GaitCommandConstPtr &gait_cmd);
