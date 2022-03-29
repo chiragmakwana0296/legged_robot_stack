@@ -146,6 +146,9 @@ add_executable(gait_kinematics_node
 src/gait_kinematics.cpp
 src/gait.cpp
 )
+add_executable(gait_teleop_node 
+src/teleop_joy.cpp
+)
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
 ## target back to the shorter version for ease of user use
@@ -163,7 +166,9 @@ src/gait.cpp
 target_link_libraries(gait_kinematics_node
   ${catkin_LIBRARIES}
 )
-
+target_link_libraries(gait_teleop_node
+  ${catkin_LIBRARIES}
+)
 #############
 ## Install ##
 #############
