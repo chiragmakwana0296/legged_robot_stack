@@ -1,9 +1,14 @@
 <launch>
 
 <rosparam file="$(find leg_description)/launch/controller.yaml" command="load"/>
-<node args="Rev5_position_controller Rev6_position_controller Rev7_position_controller joint_state_controller " name="controller_spawner" ns="leg" output="screen" pkg="controller_manager" respawn="false" type="spawner"/>
-<node name="robot_state_publisher" output="screen" pkg="robot_state_publisher" respawn="false" type="robot_state_publisher">
-  <!-- <remap from="/joint_states" to="/leg/joint_states"/> -->
+
+<node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen" args="
+            joint_group_position_controller
+            ">
 </node>
+
+<!-- <node name="robot_state_publisher" output="screen" pkg="robot_state_publisher" respawn="false" type="robot_state_publisher">
+  <remap from="/joint_states" to="/leg/joint_states"/>
+</node> -->
 
 </launch>

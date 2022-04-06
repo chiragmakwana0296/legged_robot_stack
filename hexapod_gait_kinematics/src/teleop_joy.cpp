@@ -3,11 +3,11 @@
 TeleopJoy::TeleopJoy(){
 	node.param("clearance", z, 0.045);
 
-	body_state.leg_radius = 0.11;
+	body_state.leg_radius = 0.5;
 	body_state.z = -z;
 	start_flag = false;
 
-	joy_sub = node.subscribe<sensor_msgs::Joy>("joy", 1, &TeleopJoy::joyCallback, this);
+	joy_sub = node.subscribe<sensor_msgs::Joy>("joy_out", 1, &TeleopJoy::joyCallback, this);
 	move_body_pub = node.advertise<hexapod_msgs::BodyState>("/teleop/move_body",1);
 	body_cmd_pub = node.advertise<hexapod_msgs::BodyCommand>("/teleop/body_command",1);
 	gait_cmd_pub = node.advertise<hexapod_msgs::GaitCommand>("/teleop/gait_control",1);
@@ -128,7 +128,7 @@ void TeleopJoy::joyCallback(const sensor_msgs::Joy::ConstPtr& joy){
 	else{
 		if (joy->buttons[button_right_shift_2] && !imu_flag){
 			body_state.z = -0.01;
-			body_state.leg_radius = 0.06 * joy->axes[axis_body_yaw] + 0.11;
+			body_state.leg_radius = 0.06 * joy->axes[axis_body_yaw] + 0.5;
 			move_body_pub.publish(body_state);
 		}
 		gait_command.cmd = gait_command.STOP;

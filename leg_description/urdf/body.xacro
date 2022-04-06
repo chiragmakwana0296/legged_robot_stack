@@ -6,8 +6,9 @@
 <link name="base_link">
   <inertial>
     <origin rpy="0 0 0" xyz="0 0 -0.065"/>
-    <mass value="20"/>
-    <inertia ixx="3.251607" ixy="-0.0" ixz="-0.0" iyy="13.028524" iyz="-0.0" izz="16.272836"/>
+    <mass value="5.0"/>
+    <!-- <inertia  ixx="0.7048333333333332" ixy="0" ixz="0" iyy="2.604833333333333" iyz="0" izz="3.3083333333333327" /> -->
+    <inertia  ixx="0.1762083333333333" ixy="0" ixz="0" iyy="0.6512083333333333" iyz="0" izz="0.8270833333333332" />
   </inertial>
   <visual>
     <origin rpy="0 0 0" xyz="0 0 -0.065"/>
@@ -28,13 +29,13 @@
 <xacro:property name="pi" value="3.1415926" />
 
 
-<xacro:leg side="r" num="1" x="0.5" y="-0.19" z="0.022"	angle="-${pi/2}" joint_effort="10000" joint_velocity="100"/>
-<xacro:leg side="r" num="2" x="0.0" y="-0.19" z="0.022"	angle="-${pi/2}" joint_effort="10000" joint_velocity="100"/>
-<xacro:leg side="r" num="3" x="-0.5" y="-0.19" z="0.022" angle="-${pi/2}" joint_effort="10000" joint_velocity="100"/>
+<xacro:leg side="r" num="1" x="0.5" y="-0.19" z="0.022"	angle="-${pi/2}" joint_effort="500" joint_velocity="3.14"/>
+<xacro:leg side="r" num="2" x="0.0" y="-0.19" z="0.022"	angle="-${pi/2}" joint_effort="500" joint_velocity="3.14"/>
+<xacro:leg side="r" num="3" x="-0.5" y="-0.19" z="0.022" angle="-${pi/2}" joint_effort="500" joint_velocity="3.14"/>
 
-<xacro:leg side="l" num="1" x="0.5" y="0.19" z="0.022"	angle="${pi/2}" joint_effort="10000" joint_velocity="100"/>
-<xacro:leg side="l" num="2" x="0.0" y="0.19" z="0.022"	angle="${pi/2}" joint_effort="10000" joint_velocity="100"/>
-<xacro:leg side="l" num="3" x="-0.5" y="0.19" z="0.022" angle="${pi/2}" joint_effort="10000" joint_velocity="100" />
+<xacro:leg side="l" num="1" x="0.5" y="0.19" z="0.022"	angle="${pi/2}" joint_effort="500" joint_velocity="3.14"/>
+<xacro:leg side="l" num="2" x="0.0" y="0.19" z="0.022"	angle="${pi/2}" joint_effort="500" joint_velocity="3.14"/>
+<xacro:leg side="l" num="3" x="-0.5" y="0.19" z="0.022" angle="${pi/2}" joint_effort="500" joint_velocity="3.14" />
 
 
 </robot>

@@ -1,19 +1,87 @@
-leg_controller:
+# leg_controller:
   # Publish all joint states -----------------------------------
-  joint_state_controller:
-    type: joint_state_controller/JointStateController
-    publish_rate: 50
+joint_states_controller:
+  type: joint_state_controller/JointStateController
+  publish_rate: 50
 
   # Position Controllers --------------------------------------
-  Rev5_position_controller:
-    type: effort_controllers/JointPositionController
-    joint: Rev5
-    pid: {p: 100.0, i: 0.01, d: 10.0}
-  Rev6_position_controller:
-    type: effort_controllers/JointPositionController
-    joint: Rev6
-    pid: {p: 100.0, i: 0.01, d: 10.0}
-  Rev7_position_controller:
-    type: effort_controllers/JointPositionController
-    joint: Rev7
-    pid: {p: 100.0, i: 0.01, d: 10.0}
+joint_group_position_controller:
+      type: position_controllers/JointTrajectoryController
+      allow_partial_joints_goal: True
+      joints:
+        - joint_base_r1
+        - joint_femur_r1
+        - joint_tibia_r1
+        - tibia_foot_joint_r1
+        - leg_tip_inter_joint_r1
+        - leg_tip_joint_r1
+        - joint_base_r2
+        - joint_femur_r2
+        - joint_tibia_r2
+        - tibia_foot_joint_r2
+        - leg_tip_inter_joint_r2
+        - leg_tip_joint_r2
+        - joint_base_r3
+        - joint_femur_r3
+        - joint_tibia_r3
+        - tibia_foot_joint_r3
+        - leg_tip_inter_joint_r3
+        - leg_tip_joint_r3
+        - joint_base_l1
+        - joint_femur_l1
+        - joint_tibia_l1
+        - tibia_foot_joint_l1
+        - leg_tip_inter_joint_l1
+        - leg_tip_joint_l1
+        - joint_base_l2
+        - joint_femur_l2
+        - joint_tibia_l2
+        - tibia_foot_joint_l2
+        - leg_tip_inter_joint_l2
+        - leg_tip_joint_l2
+        - joint_base_l3
+        - joint_femur_l3
+        - joint_tibia_l3
+        - tibia_foot_joint_l3
+        - leg_tip_inter_joint_l3
+        - leg_tip_joint_l3
+
+      gains:
+        joint_base_r1                     : {p: 180, d: 0.9, i: 20}
+        joint_femur_r1                    : {p: 180, d: 0.9, i: 20}
+        joint_tibia_r1                    : {p: 180, d: 0.9, i: 20}
+        tibia_foot_joint_r1               : {p: 180, d: 0.9, i: 20}
+        leg_tip_inter_joint_r1            : {p: 180, d: 0.9, i: 20}
+        leg_tip_joint_r1                  : {p: 180, d: 0.9, i: 20}
+        joint_base_r2                     : {p: 180, d: 0.9, i: 20}
+        joint_femur_r2                    : {p: 180, d: 0.9, i: 20}
+        joint_tibia_r2                    : {p: 180, d: 0.9, i: 20}
+        tibia_foot_joint_r2               : {p: 180, d: 0.9, i: 20}
+        leg_tip_inter_joint_r2            : {p: 180, d: 0.9, i: 20}
+        leg_tip_joint_r2                  : {p: 180, d: 0.9, i: 20}
+        joint_base_r3                     : {p: 180, d: 0.9, i: 20}
+        joint_femur_r3                    : {p: 180, d: 0.9, i: 20}
+        joint_tibia_r3                    : {p: 180, d: 0.9, i: 20}
+        tibia_foot_joint_r3               : {p: 180, d: 0.9, i: 20}
+        leg_tip_inter_joint_r3            : {p: 180, d: 0.9, i: 20}
+        leg_tip_joint_r3                  : {p: 180, d: 0.9, i: 20}
+        joint_base_l1                     : {p: 180, d: 0.9, i: 20}
+        joint_femur_l1                    : {p: 180, d: 0.9, i: 20}
+        joint_tibia_l1                    : {p: 180, d: 0.9, i: 20}
+        tibia_foot_joint_l1               : {p: 180, d: 0.9, i: 20}
+        leg_tip_inter_joint_l1            : {p: 180, d: 0.9, i: 20}
+        leg_tip_joint_l1                  : {p: 180, d: 0.9, i: 20}
+        joint_base_l2                     : {p: 180, d: 0.9, i: 20}
+        joint_femur_l2                    : {p: 180, d: 0.9, i: 20}
+        joint_tibia_l2                    : {p: 180, d: 0.9, i: 20}
+        tibia_foot_joint_l2               : {p: 180, d: 0.9, i: 20}
+        leg_tip_inter_joint_l2            : {p: 180, d: 0.9, i: 20}
+        leg_tip_joint_l2                  : {p: 180, d: 0.9, i: 20}
+        joint_base_l3                     : {p: 180, d: 0.9, i: 20}
+        joint_femur_l3                    : {p: 180, d: 0.9, i: 20}
+        joint_tibia_l3                    : {p: 180, d: 0.9, i: 20}
+        tibia_foot_joint_l3               : {p: 180, d: 0.9, i: 20}
+        leg_tip_inter_joint_l3            : {p: 180, d: 0.9, i: 20}
+        leg_tip_joint_l3                  : {p: 180, d: 0.9, i: 20}
+
+        

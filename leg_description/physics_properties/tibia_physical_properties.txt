@@ -1,0 +1,45 @@
+General
+	Part Number	Component43
+	Part Name	Component43
+	Description
+	Material Name	Aluminum
+
+Manage
+	Item Number
+	Lifecycle
+	Revision
+	State
+	Change Order
+
+Physical
+	Mass	2074.951 g
+	Volume	7.685E+05 mm^3
+	Density	0.003 g / mm^3
+	Area	1.618E+05 mm^2
+	World X,Y,Z	74.882 mm, -1.852 mm, 146.808 mm
+	Center of Mass	143.764 mm, -163.835 mm, 421.807 mm
+	Bounding Box
+		Length	137.772 mm
+		Width	466.086 mm
+		Height	88.00 mm
+	Moment of Inertia at Center of Mass   (g mm^2)
+		Ixx	3.639E+07
+		Ixy	3.668E+06
+		Ixz	-66.098
+		Iyx	3.668E+06
+		Iyy	3.258E+06
+		Iyz	154.789
+		Izx	-66.098
+		Izy	154.789
+		Izz	3.593E+07
+	Moment of Inertia at Origin   (g mm^2)
+		Ixx	4.613E+08
+		Ixy	5.254E+07
+		Ixz	-1.258E+08
+		Iyx	5.254E+07
+		Iyy	4.153E+08
+		Iyz	1.434E+08
+		Izx	-1.258E+08
+		Izy	1.434E+08
+		Izz	1.345E+08
+

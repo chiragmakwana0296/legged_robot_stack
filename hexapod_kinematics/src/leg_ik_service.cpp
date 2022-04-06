@@ -1,10 +1,8 @@
 #include "hexapod_kinematics/leg_ik_service.hpp"
 
 const static std::string suffixes[6] = {"_r1", "_r2", "_r3", "_l1", "_l2", "_l3"};
-// const static double joint_upper_limit[3] = { (KDL::PI/2),  (KDL::PI/2),  (KDL::PI/2)};
-// const static double joint_lower_limit[3] = {-(KDL::PI/2), -(KDL::PI/2), -(KDL::PI/2)};
-const static double joint_upper_limit[3] = { 1.10,  0.9,  0.0};
-const static double joint_lower_limit[3] = {-1.10, -0.9, -1.5};
+const static double joint_upper_limit[6] = { 1.10,  0.9,  0.0, 3.14, 3.14, 3.14};
+const static double joint_lower_limit[6] = {-1.10, -0.9, -1.5, -3.14, -3.14, -3.14};
 LegKinematics::LegKinematics():	node_private("~"){}
 
 bool LegKinematics::init() {
@@ -105,7 +103,8 @@ bool LegKinematics::getLegIKSolver (hexapod_msgs::GetIKSolver::Request &request,
 		KDL::Frame F_dest (KDL::Vector(leg_dest_pos.x, leg_dest_pos.y, leg_dest_pos.z));
 		
 		//IK solver
-		int ik_valid = ik_solver_pos[request.leg_number[i]]->CartToJnt(jnt_pos_in, F_dest, jnt_pos_out);
+		int ik_valid = ik_solver_pos[request.leg_number[i]]>CartToJnt(jnt_pos_in, F_dest, jnt_pos_out);
+		ik_solver_vel[request.leg_number[i]]-
 		ROS_INFO_STREAM("ik_valid  " <<ik_valid);
 		if (ik_valid >= 0) {
 			hexapod_msgs::LegJointsState jnt_buf;

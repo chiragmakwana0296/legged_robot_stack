@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 
+from turtle import stamp
 import rospy
 from hexapod_msgs.msg import GaitCommand
-from geometry_msgs.msg import Twist
+from geometry_msgs.msg import Twist, TwistStamped
 from sensor_msgs.msg import Joy
 from std_msgs.msg import Bool
 import math
@@ -69,7 +70,8 @@ class HexapodVelocityControl():
     def __init__(self):
         rospy.init_node("hexapod_velocity_control")
         # self.gait_command_pub = rospy.Publisher("/teleop/gait_control", GaitCommand, queue_size=1)
-        self.joy_command_pub = rospy.Publisher("/joy", Joy, queue_size=1)
+        self.joy_command_pub = rospy.Publisher("/joy_out", Joy, queue_size=1)
+        self.joy_command_viz_pub = rospy.Publisher("/joy_twist_viz", TwistStamped, queue_size=1)
         
         rospy.Subscriber("/cmd_vel/angular", Twist, self.cmd_vel_ang_cb)
         rospy.Subscriber("/cmd_vel/linear", Twist, self.cmd_vel_lin_cb)
@@ -79,6 +81,8 @@ class HexapodVelocityControl():
         rospy.Subscriber("/btn/left_shift", Bool, self.left_shift_cb)
         rospy.Subscriber("/btn/right_shift", Bool, self.right_shift_cb)
         rospy.Subscriber("/btn/start", Bool, self.start_cb)
+
+        rospy.Subscriber("/joy", Joy, self.joy_cb)
         
         self.btn_gait_switch_msg = int()
         self.btn_left_shift_msg = int()
@@ -127,6 +131,43 @@ class HexapodVelocityControl():
         self.twist_lin_ang_z_msg = msg
         self.joy_update = True
     
+    def joy_cb(self,msg):
+        joy_twist_viz_msg = TwistStamped()
+        joy_msg = Joy()
+        joy_msg.axes = [0]*20
+        joy_msg.axes[axis_body_roll] =  msg.axes[0]  #self.twist_ang_msg.angular.x
+        joy_msg.axes[axis_body_pitch] = msg.axes[1]   #self.twist_ang_msg.angular.y
+        joy_msg.axes[axis_body_yaw  ] = msg.axes[4]  #self.twist_lin_ang_z_msg.angular.z
+
+        joy_msg.axes[axis_body_x_off] = msg.axes[2]   #self.twist_lin_msg.linear.x
+        joy_msg.axes[axis_body_y_off] = msg.axes[3]   #self.twist_lin_msg.linear.y
+        joy_msg.axes[axis_body_z_off] = msg.axes[5]   #self.twist_lin_ang_z_msg.linear.z
+
+        joy_msg.axes[axis_fi_x      ] = msg.axes[2]   #self.twist_lin_msg.linear.x
+        joy_msg.axes[axis_fi_y      ] = msg.axes[3]   #self.twist_lin_msg.linear.y
+
+        joy_msg.axes[axis_alpha     ] = msg.axes[2]   #self.twist_ang_msg.angular.x
+        joy_msg.axes[axis_scale     ] = msg.axes[3]   #self.twist_ang_msg.angular.y
+
+        joy_msg.buttons = [0]*17
+        joy_msg.buttons[button_left_shift   ] = msg.buttons[4]      #self.btn_left_shift_msg
+        joy_msg.buttons[button_right_shift  ] = msg.buttons[5]      #self.btn_right_shift_msg
+        joy_msg.buttons[button_right_shift_2] = msg.buttons[7]
+        joy_msg.buttons[button_start        ] = msg.buttons[9]      #self.btn_start_msg
+        joy_msg.buttons[button_gait_switch  ] =  msg.buttons[8]     #self.btn_gait_switch_msg
+
+        self.joy_command_pub.publish(joy_msg)
+
+        joy_twist_viz_msg.header.frame_id = "base_link"
+        joy_twist_viz_msg.header.stamp = rospy.Time.now()
+        joy_twist_viz_msg.twist.linear.x = self.twist_lin_msg.linear.x
+        joy_twist_viz_msg.twist.linear.y = self.twist_lin_msg.linear.y
+        joy_twist_viz_msg.twist.linear.z = self.twist_lin_msg.linear.z
+        joy_twist_viz_msg.twist.angular.x = self.twist_lin_msg.angular.x
+        joy_twist_viz_msg.twist.angular.y = self.twist_lin_msg.angular.y
+        joy_twist_viz_msg.twist.angular.z = self.twist_lin_msg.angular.z
+        
+        self.joy_command_viz_pub.publish(joy_twist_viz_msg)
 #########################################################
 
     def gait_command(self, msg):
@@ -149,6 +190,7 @@ class HexapodVelocityControl():
         # buttons are either 0 or 1
         # button axes go from 0 to -1
         # stick axes go from 0 to +/-1
+        joy_twist_viz_msg = TwistStamped()
         joy_msg = Joy()
         joy_msg.axes = [0]*20
         joy_msg.axes[axis_body_roll] = self.twist_ang_msg.angular.x
@@ -171,6 +213,16 @@ class HexapodVelocityControl():
 
         self.joy_command_pub.publish(joy_msg)
 
+        joy_twist_viz_msg.header.frame_id = "base_link"
+        joy_twist_viz_msg.header.stamp = rospy.Time.now()
+        joy_twist_viz_msg.twist.linear.x = self.twist_lin_msg.linear.x
+        joy_twist_viz_msg.twist.linear.y = self.twist_lin_msg.linear.y
+        joy_twist_viz_msg.twist.linear.z = self.twist_lin_msg.linear.z
+        joy_twist_viz_msg.twist.angular.x = self.twist_lin_msg.angular.x
+        joy_twist_viz_msg.twist.angular.y = self.twist_lin_msg.angular.y
+        joy_twist_viz_msg.twist.angular.z = self.twist_lin_msg.angular.z
+        
+        self.joy_command_viz_pub.publish(joy_twist_viz_msg)
         
 
     def main(self):
