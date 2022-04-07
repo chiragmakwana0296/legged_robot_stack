@@ -103,8 +103,7 @@ bool LegKinematics::getLegIKSolver (hexapod_msgs::GetIKSolver::Request &request,
 		KDL::Frame F_dest (KDL::Vector(leg_dest_pos.x, leg_dest_pos.y, leg_dest_pos.z));
 		
 		//IK solver
-		int ik_valid = ik_solver_pos[request.leg_number[i]]>CartToJnt(jnt_pos_in, F_dest, jnt_pos_out);
-		ik_solver_vel[request.leg_number[i]]-
+		int ik_valid = ik_solver_pos[request.leg_number[i]]->CartToJnt(jnt_pos_in, F_dest, jnt_pos_out);
 		ROS_INFO_STREAM("ik_valid  " <<ik_valid);
 		if (ik_valid >= 0) {
 			hexapod_msgs::LegJointsState jnt_buf;
