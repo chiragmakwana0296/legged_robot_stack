@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<launch>
+    <include file="$(find hexapod_kinematics)/launch/leg_ik_service.launch"/>
+    
+    <node pkg="hexapod_gait_kinematics" type="gait_kinematics_node" name="gait_kinematics_node"/>
+    <node pkg="hexapod_core" type="velocity_control.py" name="velocity_control_node"/>
+    <node pkg="hexapod_core" type="joint_state_to_trajectory.py" name="joint_state_to_trajectory_node"/>
+    <node pkg="hexapod_gait_kinematics" type="gait_teleop_node" name="gait_teleop_node"/>
+    <node pkg="joy" type="joy_node" name="joy_node"/>
+        
+</launch>
