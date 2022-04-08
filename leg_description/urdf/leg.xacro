@@ -304,6 +304,38 @@
   <material>Gazebo/FlatBlack</material>
 </gazebo>
 
+<gazebo reference="joint_base_${side}${num}">
+    <provideFeedback>true</provideFeedback>
+</gazebo>
+<gazebo>
+    <plugin name="ft_sensor_joint_base_${side}${num}" filename="libgazebo_ros_ft_sensor.so">
+        <updateRate>30.0</updateRate>
+        <topicName>ft_sensor_joint_base_${side}${num}</topicName>
+        <jointName>joint_base_${side}${num}</jointName>
+    </plugin>
+</gazebo>
+
+<gazebo reference="joint_femur_${side}${num}">
+    <provideFeedback>true</provideFeedback>
+</gazebo>
+<gazebo>
+    <plugin name="ft_sensor_joint_femur_${side}${num}" filename="libgazebo_ros_ft_sensor.so">
+        <updateRate>30.0</updateRate>
+        <topicName>ft_sensor_joint_femur_${side}${num}</topicName>
+        <jointName>joint_femur_${side}${num}</jointName>
+    </plugin>
+</gazebo>
+
+<gazebo reference="joint_tibia_${side}${num}">
+    <provideFeedback>true</provideFeedback>
+</gazebo>
+<gazebo>
+    <plugin name="ft_sensor_joint_tibia_${side}${num}" filename="libgazebo_ros_ft_sensor.so">
+        <updateRate>30.0</updateRate>
+        <topicName>ft_sensor_joint_tibia_${side}${num}</topicName>
+        <jointName>joint_tibia_${side}${num}</jointName>
+    </plugin>
+</gazebo>
 
 <!-- Leg transmission properties  -->
 <transmission name="joint_base_${side}${num}_tran">
@@ -372,5 +404,7 @@
   </actuator>
 </transmission>
 </xacro:macro>
+
+
 
 </robot>
