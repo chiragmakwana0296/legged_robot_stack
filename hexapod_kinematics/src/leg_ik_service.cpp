@@ -1,8 +1,8 @@
 #include "hexapod_kinematics/leg_ik_service.hpp"
 
 const static std::string suffixes[6] = {"_r1", "_r2", "_r3", "_l1", "_l2", "_l3"};
-const static double joint_upper_limit[6] = { 1.10,  0.9,  0.0, 3.14, 3.14, 3.14};
-const static double joint_lower_limit[6] = {-1.10, -0.9, -1.5, -3.14, -3.14, -3.14};
+const static double joint_upper_limit[6] = { 1.10,  0.9,  0.0, 0.5, 0.5, 0.5};
+const static double joint_lower_limit[6] = {-1.10, -0.8, -1.5, -0.5, -0.5, -0.5};
 LegKinematics::LegKinematics():	node_private("~"){}
 
 bool LegKinematics::init() {
@@ -23,17 +23,6 @@ bool LegKinematics::init() {
         ROS_FATAL("Could not load models!");
         return false;
     }
-
-    // Get Min and Max joints limits
-    // node.param("joint_lower_limit", joint_lower_limit, -(KDL::PI/2));
-    // node.param("joint_upper_limit", joint_upper_limit, KDL::PI/2);
-    // joint_min.resize(num_joints);
-    // joint_max.resize(num_joints);
-    // for (unsigned int i=0; i<num_joints; i++){
-    // 	joint_min(i) = joint_lower_limit[i];
-    // 	joint_max(i) = joint_upper_limit[i];
-    // }
-    // Get Solver Parameters
 	int maxIterations;
 	double epsilon;
 
