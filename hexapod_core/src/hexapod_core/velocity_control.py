@@ -143,11 +143,11 @@ class HexapodVelocityControl():
         joy_msg.axes[axis_body_y_off] = msg.axes[3]   #self.twist_lin_msg.linear.y
         joy_msg.axes[axis_body_z_off] = msg.axes[5]   #self.twist_lin_ang_z_msg.linear.z
 
-        joy_msg.axes[axis_fi_x      ] = msg.axes[2]   #self.twist_lin_msg.linear.x
-        joy_msg.axes[axis_fi_y      ] = msg.axes[3]   #self.twist_lin_msg.linear.y
+        joy_msg.axes[axis_fi_x      ] = msg.axes[3]   #self.twist_lin_msg.linear.x
+        joy_msg.axes[axis_fi_y      ] = msg.axes[2]   #self.twist_lin_msg.linear.y
 
-        joy_msg.axes[axis_alpha     ] = msg.axes[2]   #self.twist_ang_msg.angular.x
-        joy_msg.axes[axis_scale     ] = msg.axes[3]   #self.twist_ang_msg.angular.y
+        joy_msg.axes[axis_alpha     ] = msg.axes[0]   #self.twist_ang_msg.angular.x
+        joy_msg.axes[axis_scale     ] = msg.axes[1]   #self.twist_ang_msg.angular.y
 
         joy_msg.buttons = [0]*17
         joy_msg.buttons[button_left_shift   ] = msg.buttons[4]      #self.btn_left_shift_msg
