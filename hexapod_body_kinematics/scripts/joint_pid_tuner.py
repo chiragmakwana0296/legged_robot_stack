@@ -16,15 +16,12 @@ class ServiceSetJointPID:
     def __init__(self):
         rospy.init_node("service_joint_pid_tuner_node")
         rospy.loginfo("Starting ServiceSetJointPID as service_joint_pid_tuner_node.")
-        client = dynamic_reconfigure.client.Client("gazebo", timeout=30, config_callback=self.callback)
         joine_pid_srv = rospy.Service("hexapod/set_joint_pid", SetJointPID, self.joine_pid_cb)
     
     def callback(self, config):
         rospy.loginfo(config)
 
     def joine_pid_cb(self, req):
-        param = rospy.get_param("/gazebo_ros_control")
-        print(param)
         for joint in joint_names:
             for leg in leg_suffix:
                 rospy.set_param("/gazebo_ros_control/pid_gains/{0}{1}/p".format(joint, leg), req.p)
