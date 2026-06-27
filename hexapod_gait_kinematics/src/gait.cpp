@@ -63,15 +63,15 @@ KDL::Vector* Gait::RunTripod (std::vector<KDL::Frame>::const_iterator vector_ite
 	if (run_state == false){
 		run_state = true;
 		phase = 0;
-		begin_sec = ros::Time::now().toSec();
+		begin_sec = rclcpp::Clock().now().seconds();
 		passed_sec = 0;
 	}
 	if (pause_state == true){
-		begin_sec = ros::Time::now().toSec() - passed_sec;
+		begin_sec = rclcpp::Clock().now().seconds() - passed_sec;
 		pause_state = false;
 	}
 
-	passed_sec = ros::Time::now().toSec() - begin_sec;
+	passed_sec = rclcpp::Clock().now().seconds() - begin_sec;
 	for (int i=phase; i<num_legs; i+=2){
 		frame = trajectory_transfer -> Pos(passed_sec);
 		frame.p.x(frame.p.data[0]*scale);
@@ -86,7 +86,7 @@ KDL::Vector* Gait::RunTripod (std::vector<KDL::Frame>::const_iterator vector_ite
 	}
 
 	if (passed_sec >= duration-0.02 && run_state==true){
-		begin_sec = ros::Time::now().toSec();
+		begin_sec = rclcpp::Clock().now().seconds();
 		passed_sec = 0;
 		phase = !phase;
 	}
@@ -103,16 +103,16 @@ KDL::Vector* Gait::RunRipple (std::vector<KDL::Frame>::const_iterator vector_ite
 
 	if (run_state == false){
 		run_state = true;
-		begin_sec = ros::Time::now().toSec();
+		begin_sec = rclcpp::Clock().now().seconds();
 		passed_sec = 0;
 	}
 
 	if (pause_state == true){
-		begin_sec = ros::Time::now().toSec() - passed_sec;
+		begin_sec = rclcpp::Clock().now().seconds() - passed_sec;
 		pause_state = false;
 	}
 
-	passed_sec = ros::Time::now().toSec() - begin_sec;
+	passed_sec = rclcpp::Clock().now().seconds() - begin_sec;
 
 	getTipVector(trajectory_transfer,	phase_offset,	vector_iter, scale);
 	getTipVector(trajectory_transfer,	0,				vector_iter, scale);
@@ -122,7 +122,7 @@ KDL::Vector* Gait::RunRipple (std::vector<KDL::Frame>::const_iterator vector_ite
 	getTipVector(trajectory_support,	0,				vector_iter, scale);
 
 	if (passed_sec >= phase_offset-0.02 && run_state==true){
-		begin_sec = ros::Time::now().toSec();
+		begin_sec = rclcpp::Clock().now().seconds();
 		passed_sec = 0;
 
 		legs_queue.push(legs_queue.front());
