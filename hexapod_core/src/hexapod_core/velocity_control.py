@@ -122,29 +122,42 @@ class HexapodVelocityControl(Node):
         self.joy_update = True
     
     def joy_cb(self, msg):
+        def get_axis(idx, default=0.0):
+            return float(msg.axes[idx]) if idx < len(msg.axes) else default
+
+        def get_button(idx, default=0):
+            return int(msg.buttons[idx]) if idx < len(msg.buttons) else default
+
         joy_twist_viz_msg = TwistStamped()
         joy_msg = Joy()
         joy_msg.axes = [0.0]*20
-        joy_msg.axes[axis_body_roll] =  float(msg.axes[0])
-        joy_msg.axes[axis_body_pitch] = float(msg.axes[1])
-        joy_msg.axes[axis_body_yaw  ] = float(msg.axes[4])
+        # Left stick L/R (0), Left stick U/D (1)
+        joy_msg.axes[axis_body_roll] =  get_axis(0)
+        joy_msg.axes[axis_body_pitch] = get_axis(1)
+        # Right stick L/R (3)
+        joy_msg.axes[axis_body_yaw  ] = get_axis(3)
 
-        joy_msg.axes[axis_body_x_off] = float(msg.axes[2])
-        joy_msg.axes[axis_body_y_off] = float(msg.axes[3])
-        joy_msg.axes[axis_body_z_off] = float(msg.axes[5])
+        # Left stick L/R (0), Left stick U/D (1), Right stick U/D (4)
+        joy_msg.axes[axis_body_x_off] = get_axis(1)
+        joy_msg.axes[axis_body_y_off] = get_axis(0)
+        joy_msg.axes[axis_body_z_off] = get_axis(4)
 
-        joy_msg.axes[axis_fi_x      ] = float(msg.axes[3])
-        joy_msg.axes[axis_fi_y      ] = float(msg.axes[2])
+        # Left stick L/R (0), Left stick U/D (1)
+        joy_msg.axes[axis_fi_x      ] = get_axis(0)
+        joy_msg.axes[axis_fi_y      ] = get_axis(1)
 
-        joy_msg.axes[axis_alpha     ] = float(msg.axes[0])
-        joy_msg.axes[axis_scale     ] = float(msg.axes[1])
+        # Right stick L/R (3), Right stick U/D (4)
+        joy_msg.axes[axis_alpha     ] = get_axis(3)
+        joy_msg.axes[axis_scale     ] = get_axis(4)
 
         joy_msg.buttons = [0]*17
-        joy_msg.buttons[button_left_shift   ] = int(msg.buttons[4])
-        joy_msg.buttons[button_right_shift  ] = int(msg.buttons[5])
-        joy_msg.buttons[button_right_shift_2] = int(msg.buttons[7])
-        joy_msg.buttons[button_start        ] = int(msg.buttons[9])
-        joy_msg.buttons[button_gait_switch  ] = int(msg.buttons[8])
+        # L1 (4), R1 (5), R2 (7), Options (9), Share (8), Cross (0)
+        joy_msg.buttons[button_left_shift   ] = get_button(4)
+        joy_msg.buttons[button_right_shift  ] = get_button(5)
+        joy_msg.buttons[button_right_shift_2] = get_button(7)
+        joy_msg.buttons[button_start        ] = get_button(9)
+        joy_msg.buttons[button_gait_switch  ] = get_button(8)
+        joy_msg.buttons[button_imu          ] = get_button(0)
 
         self.joy_command_pub.publish(joy_msg)
 
