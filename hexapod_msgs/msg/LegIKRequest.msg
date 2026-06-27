@@ -1,3 +1,3 @@
 int32 leg_number
-hexapod_msgs/LegJointsState current_joints
-hexapod_msgs/LegPositionState target_position
+LegJointsState current_joints
+LegPositionState target_position
