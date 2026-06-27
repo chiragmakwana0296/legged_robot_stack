@@ -1,45 +1,53 @@
 #include "hexapod_kinematics/leg_ik_service.hpp"
+#include <urdf/model.h>
 
 const static std::string suffixes[6] = {"_r1", "_r2", "_r3", "_l1", "_l2", "_l3"};
 const static double joint_upper_limit[6] = { 1.10,  0.9,  0.0, 0.5, 0.5, 0.5};
 const static double joint_lower_limit[6] = {-1.10, -0.8, -1.5, -0.5, -0.5, -0.5};
-LegKinematics::LegKinematics():	node_private("~"){}
+
+LegKinematics::LegKinematics() : Node("leg_ik_service") {
+    this->declare_parameter<std::string>("robot_description", "");
+    this->declare_parameter<std::string>("root_name", "base_link");
+    this->declare_parameter<std::string>("tip_name", "tip");
+    this->declare_parameter<int>("maxIterations", 1000);
+    this->declare_parameter<double>("epsilon", 0.01);
+}
 
 bool LegKinematics::init() {
-	 std::string robot_desc_string;
-    // Get URDF XML
-    if (!node.getParam("robot_description", robot_desc_string)) {
-           ROS_FATAL("Could not load the xml from parameter: robot_description");
-           return false;
-    }
-	// ROS_INFO_STREAM(robot_desc_string);
-    // Get Root and Tip From Parameter Server
-    node_private.param("root_name", root_name, std::string("base_link"));
-    node_private.param("tip_name", tip_name, std::string("tip"));
-	ROS_INFO_STREAM(root_name);
-	ROS_INFO_STREAM(tip_name);
-    // Load and Read Models
-    if (!loadModel(robot_desc_string)) {
-        ROS_FATAL("Could not load models!");
+    std::string robot_desc_string;
+    if (!this->get_parameter("robot_description", robot_desc_string) || robot_desc_string.empty()) {
+        RCLCPP_FATAL(this->get_logger(), "Could not load the xml from parameter: robot_description");
         return false;
     }
-	int maxIterations;
-	double epsilon;
 
-	node_private.param("maxIterations", maxIterations, 1000);
-	node_private.param("epsilon", epsilon, 0.01);
+    this->get_parameter("root_name", root_name);
+    this->get_parameter("tip_name", tip_name);
+    RCLCPP_INFO_STREAM(this->get_logger(), root_name);
+    RCLCPP_INFO_STREAM(this->get_logger(), tip_name);
 
-	// Build Solvers
-	for (unsigned int i=0; i<num_legs; i++){
-		  fk_solver[i] = new KDL::ChainFkSolverPos_recursive(*chains_ptr[i]);
-		  ik_solver_vel[i] = new KDL::ChainIkSolverVel_pinv(*chains_ptr[i]);
-		  ik_solver_pos[i] = new KDL::ChainIkSolverPos_NR(*chains_ptr[i], *fk_solver[i], *ik_solver_vel[i], maxIterations, epsilon);
-	}
+    if (!loadModel(robot_desc_string)) {
+        RCLCPP_FATAL(this->get_logger(), "Could not load models!");
+        return false;
+    }
 
-	ROS_INFO("Advertising service");
-	ik_service = node_private.advertiseService("get_ik", &LegKinematics::getLegIKSolver,this);
-	ROS_INFO("Ready to client's request...");
-	return true;
+    int maxIterations;
+    double epsilon;
+    this->get_parameter("maxIterations", maxIterations);
+    this->get_parameter("epsilon", epsilon);
+
+    for (unsigned int i=0; i<num_legs; i++){
+        fk_solver[i] = new KDL::ChainFkSolverPos_recursive(*chains_ptr[i]);
+        ik_solver_vel[i] = new KDL::ChainIkSolverVel_pinv(*chains_ptr[i]);
+        ik_solver_pos[i] = new KDL::ChainIkSolverPos_NR(*chains_ptr[i], *fk_solver[i], *ik_solver_vel[i], maxIterations, epsilon);
+    }
+
+    RCLCPP_INFO(this->get_logger(), "Advertising service");
+    ik_service = this->create_service<hexapod_msgs::srv::GetIKSolver>(
+        "get_ik",
+        std::bind(&LegKinematics::getLegIKSolver, this, std::placeholders::_1, std::placeholders::_2)
+    );
+    RCLCPP_INFO(this->get_logger(), "Ready to client's request...");
+    return true;
 }
 
 bool LegKinematics::loadModel(const std::string xml) {
@@ -48,78 +56,77 @@ bool LegKinematics::loadModel(const std::string xml) {
     std::string tip_name_result;
 
     if (!kdl_parser::treeFromString(xml, tree)) {
-        ROS_ERROR("Could not initialize tree object");
+        RCLCPP_ERROR(this->get_logger(), "Could not initialize tree object");
         return false;
     }
-    ROS_INFO("Construct tree");
+    RCLCPP_INFO(this->get_logger(), "Construct tree");
 
-    for (int i=0; i<num_legs; i++){
-    	tip_name_result = tip_name + suffixes[i];
-		if (!tree.getChain(root_name, tip_name_result, chain)) {
-			ROS_ERROR("Could not initialize chain_%s object", suffixes[i].c_str());
-			return false;
-		}
-		ROS_INFO_STREAM(tip_name_result);
+    for (unsigned int i=0; i<num_legs; i++){
+        tip_name_result = tip_name + suffixes[i];
+        if (!tree.getChain(root_name, tip_name_result, chain)) {
+            RCLCPP_ERROR(this->get_logger(), "Could not initialize chain_%s object", suffixes[i].c_str());
+            return false;
+        }
+        RCLCPP_INFO_STREAM(this->get_logger(), tip_name_result);
 
-		chains_ptr[i] = new KDL::Chain(chain);
-		ROS_INFO_STREAM("chains_ptr[i]->getNrOfSegments() " << chains_ptr[i]->getNrOfSegments());
-		ROS_INFO_STREAM("chains_ptr[i]->getNrOfJoints() "<< chains_ptr[i]->getNrOfJoints());
+        chains_ptr[i] = new KDL::Chain(chain);
+        RCLCPP_INFO_STREAM(this->get_logger(), "chains_ptr[i]->getNrOfSegments() " << chains_ptr[i]->getNrOfSegments());
+        RCLCPP_INFO_STREAM(this->get_logger(), "chains_ptr[i]->getNrOfJoints() "<< chains_ptr[i]->getNrOfJoints());
     }
-    ROS_INFO("Construct chains");
+    RCLCPP_INFO(this->get_logger(), "Construct chains");
 
     return true;
 }
 
-bool LegKinematics::getLegIKSolver (hexapod_msgs::GetIKSolver::Request &request, hexapod_msgs::GetIKSolver::Response &response){
+void LegKinematics::getLegIKSolver(
+    const std::shared_ptr<hexapod_msgs::srv::GetIKSolver::Request> request,
+    std::shared_ptr<hexapod_msgs::srv::GetIKSolver::Response> response) {
 
-	hexapod_msgs::LegPositionState leg_dest_pos;
-	response.target_joints.clear();
-	
-	for (int i = 0; i < request.leg_number.size(); i++){
-		leg_dest_pos = request.target_position[i];
-		ROS_INFO_STREAM("request.target_position[i] "<< i << " " << leg_dest_pos);
-		ROS_INFO_STREAM("request.leg_number.size() "<<  request.leg_number.size());
-		ROS_INFO_STREAM("num_joints "<<  num_joints);
+    hexapod_msgs::msg::LegPositionState leg_dest_pos;
+    response->target_joints.clear();
 
-		KDL::JntArray jnt_pos_in(num_joints);
-		KDL::JntArray jnt_pos_out(num_joints);
+    for (size_t i = 0; i < request->leg_number.size(); i++) {
+        leg_dest_pos = request->target_position[i];
+        RCLCPP_INFO_STREAM(this->get_logger(), "request->target_position[i] "<< i << " x: " << leg_dest_pos.x << " y: " << leg_dest_pos.y << " z: " << leg_dest_pos.z);
+        RCLCPP_INFO_STREAM(this->get_logger(), "request->leg_number.size() "<<  request->leg_number.size());
+        RCLCPP_INFO_STREAM(this->get_logger(), "num_joints "<<  num_joints);
 
-		//Get initial joints and frame
-		for (unsigned int j=0; j < num_joints; j++) {
-			jnt_pos_in(j) = request.current_joints[i].joint[j];
-			ROS_INFO_STREAM("jnt_pos_in" <<jnt_pos_in(j));
-		}
-		KDL::Frame F_dest (KDL::Vector(leg_dest_pos.x, leg_dest_pos.y, leg_dest_pos.z));
-		
-		//IK solver
-		int ik_valid = ik_solver_pos[request.leg_number[i]]->CartToJnt(jnt_pos_in, F_dest, jnt_pos_out);
-		ROS_INFO_STREAM("ik_valid  " <<ik_valid);
-		if (ik_valid >= 0) {
-			hexapod_msgs::LegJointsState jnt_buf;
-			for (unsigned int j=0; j<num_joints; j++) {
-					jnt_buf.joint[j] = jnt_pos_out(j);
-				}
-			response.target_joints.push_back(jnt_buf);
-			response.error_codes = response.IK_FOUND;
-			ROS_DEBUG("IK Solution for leg%s found", suffixes[request.leg_number[i]].c_str());
-		}
-		else {
-			response.error_codes = response.IK_NOT_FOUND;
-			ROS_ERROR("An IK solution could not be found for leg%s", suffixes[request.leg_number[i]].c_str());
-			return true;
-		}
-	}
-	return true;
+        KDL::JntArray jnt_pos_in(num_joints);
+        KDL::JntArray jnt_pos_out(num_joints);
+
+        for (unsigned int j=0; j < num_joints; j++) {
+            jnt_pos_in(j) = request->current_joints[i].joint[j];
+            RCLCPP_INFO_STREAM(this->get_logger(), "jnt_pos_in" << jnt_pos_in(j));
+        }
+        KDL::Frame F_dest(KDL::Vector(leg_dest_pos.x, leg_dest_pos.y, leg_dest_pos.z));
+
+        int ik_valid = ik_solver_pos[request->leg_number[i]]->CartToJnt(jnt_pos_in, F_dest, jnt_pos_out);
+        RCLCPP_INFO_STREAM(this->get_logger(), "ik_valid  " << ik_valid);
+        
+        if (ik_valid >= 0) {
+            hexapod_msgs::msg::LegJointsState jnt_buf;
+            for (unsigned int j=0; j<num_joints; j++) {
+                jnt_buf.joint[j] = jnt_pos_out(j);
+            }
+            response->target_joints.push_back(jnt_buf);
+            response->error_codes = hexapod_msgs::srv::GetIKSolver::Response::IK_FOUND;
+            RCLCPP_DEBUG(this->get_logger(), "IK Solution for leg%s found", suffixes[request->leg_number[i]].c_str());
+        } else {
+            response->error_codes = hexapod_msgs::srv::GetIKSolver::Response::IK_NOT_FOUND;
+            RCLCPP_ERROR(this->get_logger(), "An IK solution could not be found for leg%s", suffixes[request->leg_number[i]].c_str());
+            return;
+        }
+    }
 }
 
-int main(int argc, char **argv)
-{
-	ros::init(argc, argv, "leg_ik_service");
-	LegKinematics k;
-    if (k.init()<0) {
-        ROS_ERROR("Could not initialize kinematics node");
+int main(int argc, char **argv) {
+    rclcpp::init(argc, argv);
+    auto node = std::make_shared<LegKinematics>();
+    if (!node->init()) {
+        RCLCPP_ERROR(node->get_logger(), "Could not initialize kinematics node");
         return -1;
     }
-    ros::spin();
+    rclcpp::spin(node);
+    rclcpp::shutdown();
     return 0;
 }
