@@ -1,26 +1,20 @@
 #ifndef HEXAPOD_BODY_KINEMATICS__INTERACTIVE_MARKER_HPP_
 #define HEXAPOD_BODY_KINEMATICS__INTERACTIVE_MARKER_HPP_
 
-#include <ros/ros.h>
-#include <interactive_markers/interactive_marker_server.h>
+#include <rclcpp/rclcpp.hpp>
+#include <interactive_markers/interactive_marker_server.hpp>
+#include <visualization_msgs/msg/interactive_marker_feedback.hpp>
 
-
-class IntractiveMarker
+class InteractiveMarker : public rclcpp::Node
 {
 private:
-    ros::NodeHandle nh_;
+    std::unique_ptr<interactive_markers::InteractiveMarkerServer> body_marker_server;
 
-    
-
-    void processFeedback(const visualization_msgs::InteractiveMarkerFeedbackConstPtr &feedback );
+    void processFeedback(const visualization_msgs::msg::InteractiveMarkerFeedback::ConstSharedPtr &feedback );
     void createMarker();
 
-    
 public:
-    IntractiveMarker(ros::NodeHandle* nodehandle);
+    InteractiveMarker();
 };
 
-
-
-
-#endif /* HEXAPOD_BODY_KINEMATICS__INTRACTIVE_MARKER_HPP_ */
+#endif /* HEXAPOD_BODY_KINEMATICS__INTERACTIVE_MARKER_HPP_ */

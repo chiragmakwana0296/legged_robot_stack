@@ -1,12 +1,11 @@
-
 #ifndef TELEOP_JOY_HPP_
 #define TELEOP_JOY_HPP_
 
-#include <ros/ros.h>
-#include <sensor_msgs/Joy.h>
-#include <hexapod_msgs/BodyState.h>
-#include <hexapod_msgs/BodyCommand.h>
-#include <hexapod_msgs/GaitCommand.h>
+#include <rclcpp/rclcpp.hpp>
+#include <sensor_msgs/msg/joy.hpp>
+#include <hexapod_msgs/msg/body_state.hpp>
+#include <hexapod_msgs/msg/body_command.hpp>
+#include <hexapod_msgs/msg/gait_command.hpp>
 
 // note on plain values:
 // buttons are either 0 or 1
@@ -52,20 +51,20 @@
 #define PS3_AXIS_ACCELEROMETER_UP        18
 #define PS3_AXIS_GYRO_YAW                19
 
-class TeleopJoy {
+class TeleopJoy : public rclcpp::Node {
 	public:
 		TeleopJoy();
 
 	private:
-		ros::NodeHandle node;
-		hexapod_msgs::BodyState body_state;
-		hexapod_msgs::BodyCommand body_command;
-		hexapod_msgs::GaitCommand gait_command;
+		hexapod_msgs::msg::BodyState body_state;
+		hexapod_msgs::msg::BodyCommand body_command;
+		hexapod_msgs::msg::GaitCommand gait_command;
 
-		ros::Subscriber joy_sub;
-		ros::Publisher move_body_pub;
-		ros::Publisher body_cmd_pub;
-		ros::Publisher gait_cmd_pub;
+		rclcpp::CallbackGroup::SharedPtr cb_group_;
+		rclcpp::Subscription<sensor_msgs::msg::Joy>::SharedPtr joy_sub;
+		rclcpp::Publisher<hexapod_msgs::msg::BodyState>::SharedPtr move_body_pub;
+		rclcpp::Publisher<hexapod_msgs::msg::BodyCommand>::SharedPtr body_cmd_pub;
+		rclcpp::Publisher<hexapod_msgs::msg::GaitCommand>::SharedPtr gait_cmd_pub;
 
 		double z;
 
@@ -73,7 +72,7 @@ class TeleopJoy {
 		bool gait_flag;
 		bool imu_flag;
 
-		void joyCallback(const sensor_msgs::Joy::ConstPtr& joy);
+		void joyCallback(const sensor_msgs::msg::Joy::SharedPtr joy);
 
 		const static int axis_body_roll = PS3_AXIS_STICK_LEFT_LEFTWARDS;
 		const static int axis_body_pitch = PS3_AXIS_STICK_LEFT_UPWARDS;
@@ -92,6 +91,5 @@ class TeleopJoy {
 		const static int axis_scale = PS3_AXIS_STICK_RIGHT_UPWARDS;
 		const static int button_imu = PS3_BUTTON_ACTION_CROSS;
 };
-
 
 #endif /* TELEOP_JOY_HPP_ */

@@ -1,25 +1,24 @@
 #ifndef HEXAPOD_KINEMATICS__LEG_IK_SERVICE_HPP_
 #define HEXAPOD_KINEMATICS__LEG_IK_SERVICE_HPP_
 
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 #include <kdl_parser/kdl_parser.hpp>
 #include <kdl/chainiksolvervel_pinv.hpp>
 #include <kdl/chainfksolverpos_recursive.hpp>
 #include <kdl/chainiksolverpos_nr_jl.hpp>
 #include <kdl/chainiksolverpos_nr.hpp>
 
-#include <hexapod_msgs/GetIKSolver.h>
-#include <hexapod_msgs/LegPositionState.h>
+#include <hexapod_msgs/srv/get_ik_solver.hpp>
+#include <hexapod_msgs/msg/leg_position_state.hpp>
 
 #define NUM_LEGS 6
 #define NUM_JOINTS 6
 
-class LegKinematics {
+class LegKinematics : public rclcpp::Node {
 	public:
 		LegKinematics();
 		bool init();
 	private:
-		ros::NodeHandle node, node_private;
 		std::string root_name, tip_name;
 		// double joint_lower_limit, joint_upper_limit;
 		const static unsigned int num_joints = NUM_JOINTS;
@@ -31,15 +30,12 @@ class LegKinematics {
 		KDL::ChainIkSolverPos_NR* ik_solver_pos[6];
 		KDL::ChainIkSolverVel_pinv* ik_solver_vel[6];
 
-		ros::ServiceServer ik_service;
+		rclcpp::Service<hexapod_msgs::srv::GetIKSolver>::SharedPtr ik_service;
 
 		bool loadModel(const std::string xml);
-		bool getLegIKSolver (	hexapod_msgs::GetIKSolver::Request &request,
-								hexapod_msgs::GetIKSolver::Response &response);
-
-
+		void getLegIKSolver (
+			const std::shared_ptr<hexapod_msgs::srv::GetIKSolver::Request> request,
+			std::shared_ptr<hexapod_msgs::srv::GetIKSolver::Response> response);
 };
-
-
 
 #endif /* HEXAPOD_KINEMATICS__LEG_IK_SERVICE_HPP_ */

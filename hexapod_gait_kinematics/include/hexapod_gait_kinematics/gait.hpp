@@ -4,7 +4,7 @@
 #define HEXAPOD_GAIT_KINEMATICS__GAIT_HPP_
 
 
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 #include <kdl/frames.hpp>
 #include <kdl/path_line.hpp>
 #include <kdl/rotational_interpolation_sa.hpp>

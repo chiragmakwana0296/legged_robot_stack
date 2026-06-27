@@ -1,26 +1,26 @@
 #include "hexapod_body_kinematics/interactive_marker.hpp"
+#include <visualization_msgs/msg/interactive_marker.hpp>
+#include <visualization_msgs/msg/marker.hpp>
+#include <visualization_msgs/msg/interactive_marker_control.hpp>
 
-
-IntractiveMarker::IntractiveMarker(ros::NodeHandle* nodehandle):nh_(*nodehandle){
-    IntractiveMarker::createMarker();
+InteractiveMarker::InteractiveMarker() : Node("interactive_marker") {
+    body_marker_server = std::make_unique<interactive_markers::InteractiveMarkerServer>("body_marker_server", this);
+    createMarker();
 }
 
-
-void IntractiveMarker::processFeedback(const visualization_msgs::InteractiveMarkerFeedbackConstPtr &feedback ){
-
+void InteractiveMarker::processFeedback(const visualization_msgs::msg::InteractiveMarkerFeedback::ConstSharedPtr &feedback) {
+    (void)feedback;
 }
 
-
-void IntractiveMarker::createMarker(){
-    visualization_msgs::InteractiveMarker body_marker;
+void InteractiveMarker::createMarker() {
+    visualization_msgs::msg::InteractiveMarker body_marker;
     body_marker.header.frame_id = "base_link";
-    body_marker.header.stamp=ros::Time::now();
+    body_marker.header.stamp = this->now();
     body_marker.name = "body_marker";
     body_marker.description = "Body Marker";
 
-    
-    visualization_msgs::Marker sphere_marker;
-    sphere_marker.type = visualization_msgs::Marker::SPHERE;
+    visualization_msgs::msg::Marker sphere_marker;
+    sphere_marker.type = visualization_msgs::msg::Marker::SPHERE;
     sphere_marker.scale.x = 0.45;
     sphere_marker.scale.y = 0.45;
     sphere_marker.scale.z = 0.45;
@@ -29,39 +29,29 @@ void IntractiveMarker::createMarker(){
     sphere_marker.color.b = 0.5;
     sphere_marker.color.a = 1.0;
 
-    visualization_msgs::InteractiveMarkerControl sphere_control;
+    visualization_msgs::msg::InteractiveMarkerControl sphere_control;
     sphere_control.always_visible = true;
-    sphere_control.markers.push_back( sphere_marker );
+    sphere_control.markers.push_back(sphere_marker);
 
     // add the control to the interactive marker
-    body_marker.controls.push_back( sphere_control );
+    body_marker.controls.push_back(sphere_control);
 
-    visualization_msgs::InteractiveMarkerControl rotate_control;
+    visualization_msgs::msg::InteractiveMarkerControl rotate_control;
     rotate_control.name = "move_3d";
-    rotate_control.interaction_mode = visualization_msgs::InteractiveMarkerControl::MOVE_ROTATE_3D;
+    rotate_control.interaction_mode = visualization_msgs::msg::InteractiveMarkerControl::MOVE_ROTATE_3D;
 
     // add the control to the interactive marker
     body_marker.controls.push_back(rotate_control);
 
-    // interactive_markers::InteractiveMarkerServer *body_marker_server->setCallback(body_marker.name, boost::bind(&IntractiveMarker::processFeedback, this, _1));
-    // body_marker_server->insert(body_marker);
-    // body_marker_server->applyChanges();
+    body_marker_server->insert(body_marker);
+    body_marker_server->setCallback(body_marker.name, std::bind(&InteractiveMarker::processFeedback, this, std::placeholders::_1));
+    body_marker_server->applyChanges();
 }
 
-
-
-int main(int argc, char** argv) 
-{
-    // ROS set-ups:
-    ros::init(argc, argv, "exampleRosClass"); //node name
-
-    ros::NodeHandle nh; // create a node handle; need to pass this to the class constructor
-
-    ROS_INFO("main: instantiating an object of type ExampleRosClass");
-    IntractiveMarker intractiveMarker(&nh);  //instantiate an ExampleRosClass object and pass in pointer to nodehandle for constructor to use
-
-    ROS_INFO("main: going into spin; let the callbacks do all the work");
-    ros::spin();
+int main(int argc, char** argv) {
+    rclcpp::init(argc, argv);
+    auto node = std::make_shared<InteractiveMarker>();
+    rclcpp::spin(node);
+    rclcpp::shutdown();
     return 0;
-} 
-
+}
